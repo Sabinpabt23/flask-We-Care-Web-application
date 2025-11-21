@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Restock Products</h2>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="vendor_name">Vendor/Supplier Name:</label>
+        <input type="text" id="vendor_name" name="vendor_name" required>
+    </div>
+
+    <h3>Select Products to Restock:</h3>
+    
+    <table class="products-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Brand</th>
+                <th>Current Stock</th>
+                <th>Cost Price</th>
+                <th>Quantity to Add</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.brand }}</td>
+                <td>{{ product.stock }}</td>
+                <td>₹{{ "%.2f"|format(product.cost) }}</td>
+                <td>
+                    <input type="number" name="qty_{{ product.id }}" 
+                           min="0" value="0" class="quantity-input">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn">Process Restock</button>
+</form>
+{% endblock %}

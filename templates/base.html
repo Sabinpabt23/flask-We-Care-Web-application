@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeCare Beauty Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WeCare Beauty Store</h1>
+            <nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('show_products') }}">Products</a>
+    
+    {% if session.customer_id %}
+        <!-- Show these only when customer is logged in -->
+        <a href="{{ url_for('purchase') }}">Make Purchase</a>
+        <a href="{{ url_for('customer_dashboard') }}">My Account</a>
+        <a href="{{ url_for('logout') }}">Logout ({{ session.customer_name }})</a>
+    {% elif session.admin_id %}
+        <!-- Show these only when admin is logged in -->
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        <a href="{{ url_for('admin_products') }}">🛍️ Product Management</a>
+        <a href="{{ url_for('admin_restock') }}">Restock</a>
+        <a href="{{ url_for('admin_customers') }}">Customers</a>
+        <a href="{{ url_for('admin_sales_reports') }}">Sales Reports</a>
+        <a href="{{ url_for('admin_logout') }}">Admin Logout ({{ session.admin_name }})</a>
+    {% else %}
+        <!-- Show these only when NOT logged in -->
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="{{ url_for('admin_login') }}" class="admin-link">Admin</a>
+    {% endif %}
+</nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+</body>
+</html>

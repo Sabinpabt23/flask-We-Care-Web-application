@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-customers">
+    <h2>👥 Customer Management</h2>
+    
+    <div class="customers-stats">
+        <div class="stat-card">
+            <h3>📊 Customer Overview</h3>
+            <div class="stat-content">
+                <p><strong>Total Customers:</strong> {{ customers|length }}</p>
+                <p><strong>Wallets Setup:</strong> 
+                    {{ customers.values()|selectattr("wallet")|list|length }}/{{ customers|length }}
+                </p>
+                <p><strong>Active Customers:</strong> {{ customers.values()|selectattr("purchase_count", "gt", 0)|list|length }}</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>💰 Financial Overview</h3>
+            <div class="stat-content">
+                <p><strong>Total Revenue:</strong> ₹{{ "%.2f"|format(customers.values()|sum(attribute="total_spent")) }}</p>
+                <p><strong>Total Purchases:</strong> {{ customers.values()|sum(attribute="purchase_count") }}</p>
+                <p><strong>Avg. Spend:</strong> ₹{{ "%.2f"|format(customers.values()|sum(attribute="total_spent") / (customers.values()|selectattr("purchase_count", "gt", 0)|list|length or 1)) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="customers-container">
+        <h3>All Registered Customers</h3>
+        
+        {% if customers %}
+        <div class="customers-grid">
+            {% for customer_id, customer in customers.items() %}
+            <div class="customer-card">
+                <div class="customer-header">
+                    <div class="customer-avatar">
+                        {{ customer.name[0]|upper }}
+                    </div>
+                    <div class="customer-basic-info">
+                        <h4>{{ customer.name }}</h4>
+                        <p class="customer-email">{{ customer.email }}</p>
+                        <p class="customer-id">ID: {{ customer.customer_id }}</p>
+                    </div>
+                    <div class="customer-status">
+                        {% if customer.wallet %}
+                        <span class="status-badge success">Wallet Setup</span>
+                        {% else %}
+                        <span class="status-badge warning">No Wallet</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="customer-details">
+                    <div class="detail-row">
+                        <span class="detail-label">📞 Phone:</span>
+                        <span class="detail-value">{{ customer.phone }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">📅 Joined:</span>
+                        <span class="detail-value">{{ customer.join_date }}</span>
+                    </div>
+                    {% if customer.last_purchase %}
+                    <div class="detail-row">
+                        <span class="detail-label">🛒 Last Purchase:</span>
+                        <span class="detail-value">{{ customer.last_purchase }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="customer-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ customer.purchase_count }}</span>
+                        <span class="stat-label">Purchases</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">₹{{ "%.2f"|format(customer.total_spent) }}</span>
+                        <span class="stat-label">Total Spent</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ customer.points }}</span>
+                        <span class="stat-label">Points</span>
+                    </div>
+                </div>
+                
+                <div class="customer-loyalty">
+                    {% if customer.points >= 3000 %}
+                    <div class="loyalty-badge gold">🥇 Gold</div>
+                    {% elif customer.points >= 1000 %}
+                    <div class="loyalty-badge silver">🥈 Silver</div>
+                    {% else %}
+                    <div class="loyalty-badge bronze">🥉 Bronze</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-customers">
+            <div class="empty-state">
+                <h3>📭 No Customers Yet</h3>
+                <p>No customers have registered in the system yet.</p>
+                <p>Customers will appear here once they create accounts.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

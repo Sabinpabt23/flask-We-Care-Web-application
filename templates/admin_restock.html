@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-restock">
+    <h2>📦 Admin Restock Management</h2>
+    
+    <div class="admin-wallet-info" data-balance="{{ admin_wallet.balance }}">
+        <p>💰 <strong>Admin Balance:</strong> ₹{{ "%.2f"|format(admin_wallet.balance) }}</p>
+        <p><small>Total Revenue: ₹{{ "%.2f"|format(admin_wallet.total_revenue) }} | Transactions: {{ admin_wallet.total_transactions }}</small></p>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="vendor_name">Vendor/Supplier Name:</label>
+            <input type="text" id="vendor_name" name="vendor_name" required>
+        </div>
+
+        <h3>Select Products to Restock:</h3>
+        
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Current Stock</th>
+                    <th>Cost Price</th>
+                    <th>Quantity to Add</th>
+                    <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.brand }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>₹{{ "%.2f"|format(product.cost) }}</td>
+                    <td>
+                        <input type="number" name="qty_{{ product.id }}" 
+                               min="0" value="0" class="quantity-input restock-qty"
+                               data-cost="{{ product.cost }}">
+                    </td>
+                    <td class="product-total">₹0.00</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="restock-summary">
+            <p><strong>Total Restock Cost: ₹<span id="restockTotal">0.00</span></strong></p>
+            <p><strong>Remaining Balance After Restock: ₹<span id="remainingBalance">{{ "%.2f"|format(admin_wallet.balance) }}</span></strong></p>
+        </div>
+
+        <button type="submit" class="btn">Process Restock</button>
+    </form>
+
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+// Get wallet balance from data attribute
+function getAdminBalance() {
+    const walletElement = document.querySelector('.admin-wallet-info');
+    if (walletElement) {
+        return parseFloat(walletElement.getAttribute('data-balance')) || 50000.00;
+    }
+    return 50000.00;
+}
+
+// Function to calculate and update restock totals
+function updateRestockTotal() {
+    let totalCost = 0;
+    const ADMIN_BALANCE = getAdminBalance();
+    
+    // Get all quantity inputs
+    const quantityInputs = document.querySelectorAll('.restock-qty');
+    
+    // Calculate total cost for all products
+    quantityInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        const cost = parseFloat(input.getAttribute('data-cost'));
+        const productTotal = quantity * cost;
+        
+        // Update individual product total display
+        const row = input.closest('tr');
+        const totalCell = row.querySelector('.product-total');
+        if (totalCell) {
+            totalCell.textContent = '₹' + productTotal.toFixed(2);
+        }
+        
+        totalCost += productTotal;
+    });
+    
+    // Update main totals display
+    const restockTotalElement = document.getElementById('restockTotal');
+    const remainingBalanceElement = document.getElementById('remainingBalance');
+    
+    if (restockTotalElement) {
+        restockTotalElement.textContent = totalCost.toFixed(2);
+    }
+    
+    if (remainingBalanceElement) {
+        const remainingBalance = ADMIN_BALANCE - totalCost;
+        remainingBalanceElement.textContent = remainingBalance.toFixed(2);
+        
+        // Color code based on balance
+        if (remainingBalance < 0) {
+            remainingBalanceElement.style.color = '#dc3545';
+        } else if (remainingBalance < 1000) {
+            remainingBalanceElement.style.color = '#ffc107';
+        } else {
+            remainingBalanceElement.style.color = '#28a745';
+        }
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all quantity inputs
+    const quantityInputs = document.querySelectorAll('.restock-qty');
+    quantityInputs.forEach(input => {
+        input.addEventListener('input', updateRestockTotal);
+        input.addEventListener('change', updateRestockTotal);
+    });
+    
+    // Calculate initial totals
+    updateRestockTotal();
+});
+</script>
+{% endblock %}

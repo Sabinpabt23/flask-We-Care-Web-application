@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="invoice">
+    <h2>Purchase Invoice</h2>
+    
+    <div class="invoice-header">
+        <p><strong>Customer:</strong> {{ customer_name }}</p>
+        <p><strong>Date:</strong> {{ timestamp }}</p>
+        <p><strong>Invoice File:</strong> {{ filename }}</p>
+    </div>
+
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Free Items</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.free }}</td>
+                <td>₹{{ "%.2f"|format(item.price) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3"><strong>TOTAL:</strong></td>
+                <td><strong>₹{{ "%.2f"|format(total) }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="invoice-actions">
+        <a href="{{ url_for('show_products') }}" class="btn">Back to Products</a>
+        <a href="{{ url_for('purchase') }}" class="btn">New Purchase</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h2>Welcome to WeCare Beauty Store</h2>
+    <p>Your one-stop destination for quality beauty products</p>
+    
+    <div class="quick-actions">
+        <a href="{{ url_for('show_products') }}" class="btn">View Products</a>
+        
+        {% if session.customer_id %}
+            <!-- Show these only when logged in as customer -->
+            <a href="{{ url_for('purchase') }}" class="btn">Make Purchase</a>
+            <a href="{{ url_for('customer_dashboard') }}" class="btn">My Dashboard</a>
+        {% elif session.admin_id %}
+            <!-- Show these only when logged in as admin -->
+            <a href="{{ url_for('admin_dashboard') }}" class="btn">Admin Dashboard</a>
+            <a href="{{ url_for('admin_restock') }}" class="btn">Restock Products</a>
+        {% else %}
+            <!-- Show these only when NOT logged in -->
+            <a href="{{ url_for('register') }}" class="btn">Join Now</a>
+            <a href="{{ url_for('login') }}" class="btn">Member Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Optional: Show wallet balance only if logged in as customer -->
+{% if session.customer_id and wallet_balance > 0 %}
+<div class="wallet-notice">
+    <p>💰 Your wallet balance: <strong>₹{{ "%.2f"|format(wallet_balance) }}</strong></p>
+</div>
+{% endif %}
+
+<!-- Store Statistics -->
+<div class="store-stats">
+    <h3>🏪 Store Overview</h3>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-number">3</span>
+            <span class="stat-label">Premium Products</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">🎁</span>
+            <span class="stat-label">Buy 3 Get 1 Free</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">💳</span>
+            <span class="stat-label">Secure Payments</span>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products Preview -->
+<div class="featured-products">
+    <h3>✨ Featured Beauty Products</h3>
+    <div class="products-preview">
+        <div class="product-preview">
+            <h4>Vitamin C Serum</h4>
+            <p>Brightening & Anti-aging</p>
+            <span class="product-brand">Garnier • France</span>
+        </div>
+        <div class="product-preview">
+            <h4>Skin Cleanser</h4>
+            <p>Gentle & Hydrating</p>
+            <span class="product-brand">Cetaphil • Switzerland</span>
+        </div>
+        <div class="product-preview">
+            <h4>Sunscreen</h4>
+            <p>UV Protection</p>
+            <span class="product-brand">Aqualogica • India</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

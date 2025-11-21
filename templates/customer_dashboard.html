@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="customer-dashboard">
+    <h2>Welcome, {{ customer.name }}! 👋</h2>
+    
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <h3>Account Summary</h3>
+            <div class="card-content">
+                <p><strong>Member Since:</strong> {{ customer.join_date }}</p>
+                <p><strong>Email:</strong> {{ customer.email }}</p>
+                <p><strong>Phone:</strong> {{ customer.phone }}</p>
+                {% if customer.last_purchase %}
+                <p><strong>Last Purchase:</strong> {{ customer.last_purchase }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Wallet & Balance</h3>
+            <div class="card-content">
+                {% if customer.wallet %}
+                <div class="wallet-info">
+                    <p><strong>Balance:</strong> ₹{{ "%.2f"|format(customer.wallet_balance) }}</p>
+                    <p><strong>Card:</strong> {{ customer.wallet.card_type|title }} •••• {{ customer.wallet.card_number }}</p>
+                    <p><strong>Expires:</strong> {{ customer.wallet.expiry_date }}</p>
+                    <a href="{{ url_for('wallet') }}" class="btn small-btn">Manage Wallet</a>
+                </div>
+                {% else %}
+                <div class="wallet-setup-prompt">
+                    <p>⚠️ Wallet not setup</p>
+                    <p>You need to setup your wallet to make purchases.</p>
+                    <a href="{{ url_for('setup_wallet') }}" class="btn">Setup Wallet</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Purchase Statistics</h3>
+            <div class="card-content">
+                <p><strong>Total Purchases:</strong> {{ customer.purchase_count }}</p>
+                <p><strong>Total Spent:</strong> ₹{{ "%.2f"|format(customer.total_spent) }}</p>
+                <p><strong>Loyalty Points:</strong> {{ customer.points }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-grid">
+        <a href="{{ url_for('show_products') }}" class="action-btn">
+            <span>🛍️</span>
+            <span>Shop Products</span>
+        </a>
+        
+        {% if customer.wallet %}
+        <a href="{{ url_for('wallet') }}" class="action-btn">
+            <span>💰</span>
+            <span>Manage Wallet</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('setup_wallet') }}" class="action-btn">
+            <span>💳</span>
+            <span>Setup Wallet</span>
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('customer_purchases') }}" class="action-btn">
+            <span>📦</span>
+            <span>Purchase History</span>
+        </a>
+    </div>
+
+    {% if customer.purchase_count == 0 %}
+    <div class="welcome-message">
+        <h3>Welcome to WeCare Beauty Store! 🎉</h3>
+        <p>You're now a member of our beauty community. Start exploring our products and enjoy your shopping experience!</p>
+        <a href="{{ url_for('show_products') }}" class="btn">Start Shopping</a>
+    </div>
+    {% endif %}
+
+    <div class="loyalty-info">
+    <h3>Your Loyalty Status</h3>
+    
+    <div class="tier {{ customer.loyalty_tier }}">
+        <h4>{{ customer.loyalty_info.name }}</h4>
+        <p>Points Balance: <strong>{{ "%.1f"|format(customer.points) }} points</strong></p>
+        <p>Earn 1 point for every ₹100 spent</p>
+        
+        {% if customer.loyalty_info.next_tier %}
+        <p><strong>Next Tier:</strong> {{ customer.loyalty_info.points_needed|int }} points to {{ customer.loyalty_info.next_tier|title }}</p>
+        {% else %}
+        <p><strong>🎉 You've reached the highest tier!</strong></p>
+        {% endif %}
+    </div>
+</div>
+        <div class="points-info">
+            <p><strong>Points Balance:</strong> {{ customer.points }} points</p>
+            <p><em>Earn 1 point for every ₹100 spent</em></p>
+        </div>
+    </div>
+
+<div class="account-actions">
+    <h3>Account Management</h3>
+    <a href="{{ url_for('delete_account') }}" class="btn danger-btn" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+        🗑️ Delete Account
+    </a>
+</div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+        <h3>Recent Activity</h3>
+        {% if customer.purchase_count > 0 %}
+        <div class="activity-list">
+            <div class="activity-item">
+                <span class="activity-icon">🛒</span>
+                <div class="activity-details">
+                    <p><strong>Last Purchase:</strong> {{ customer.last_purchase }}</p>
+                    <p>You made a purchase worth ₹{{ "%.2f"|format(customer.total_spent / customer.purchase_count) }} on average</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-activity">
+            <p>No recent activity. Start shopping to see your history here!</p>
+            <a href="{{ url_for('show_products') }}" class="btn">Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

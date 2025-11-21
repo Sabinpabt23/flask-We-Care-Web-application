@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Create Your Account</h2>
+    
+    <form method="POST" class="auth-form" id="registrationForm">
+        <div class="form-group">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required minlength="2" maxlength="50">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" minlength="6" required>
+            <small class="password-requirements">Minimum 6 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+            <small id="passwordMatch" class="validation-message"></small>
+        </div>
+
+        <!-- Wallet Setup Option -->
+        <div class="wallet-setup">
+            <h3>Wallet Setup (Optional)</h3>
+            <p class="wallet-note">You can setup your wallet now or later. Wallet is required for purchases.</p>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="setup_wallet" id="setup_wallet">
+                    Setup my wallet now
+                </label>
+            </div>
+
+            <div id="wallet-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="card_type">Card Type:</label>
+                    <select id="card_type" name="card_type" required>
+                        <option value="">Select Card Type</option>
+                        <option value="visa">Visa</option>
+                        <option value="mastercard">Mastercard</option>
+                        <option value="amex">American Express</option>
+                        <option value="discover">Discover</option>
+                        <option value="rupay">RuPay</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="card_holder">Card Holder Name:</label>
+                    <input type="text" id="card_holder" name="card_holder" pattern="[A-Za-z ]+" title="Only letters and spaces allowed" maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="card_number">Card Number:</label>
+                    <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" pattern="[0-9 ]{13,19}">
+                    <small id="cardTypeIndicator" class="card-type-indicator"></small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expiry_date">Expiry Date:</label>
+                        <input type="month" id="expiry_date" name="expiry_date" min="{{ min_expiry_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV:</label>
+                        <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" pattern="[0-9]{3,4}">
+                    </div>
+                </div>
+
+                <div class="wallet-benefits">
+                    <h4>🎁 Welcome Bonus!</h4>
+                    <p>You'll start with <strong>₹10,000</strong> in your wallet when you setup your card!</p>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Register</button>
+    </form>
+
+    <div class="auth-links">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Wallet setup toggle
+    const walletCheckbox = document.getElementById('setup_wallet');
+    const walletFields = document.getElementById('wallet-fields');
+    const cardNumberInput = document.getElementById('card_number');
+    const cardTypeIndicator = document.getElementById('cardTypeIndicator');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const passwordMatch = document.getElementById('passwordMatch');
+    const submitBtn = document.getElementById('submitBtn');
+    const registrationForm = document.getElementById('registrationForm');
+
+    // Set minimum expiry date to current month
+    const today = new Date();
+    const minExpiryDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+    document.getElementById('expiry_date').min = minExpiryDate;
+
+    // Wallet fields toggle
+    walletCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            walletFields.style.display = 'block';
+            // Add required attributes when wallet is enabled
+            document.getElementById('card_type').required = true;
+            document.getElementById('card_holder').required = true;
+            document.getElementById('card_number').required = true;
+            document.getElementById('expiry_date').required = true;
+            document.getElementById('cvv').required = true;
+        } else {
+            walletFields.style.display = 'none';
+            // Remove required attributes when wallet is disabled
+            document.getElementById('card_type').required = false;
+            document.getElementById('card_holder').required = false;
+            document.getElementById('card_number').required = false;
+            document.getElementById('expiry_date').required = false;
+            document.getElementById('cvv').required = false;
+        }
+    });
+
+    // Card number formatting and validation
+    cardNumberInput.addEventListener('input', function(e) {
+        // Remove all non-digits
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Add spaces every 4 digits
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        
+        // Update input value
+        e.target.value = value;
+        
+        // Detect card type
+        detectCardType(value.replace(/\s/g, ''));
+        
+        // Validate card number length
+        validateCardNumber(value.replace(/\s/g, ''));
+    });
+
+    // CVV validation based on card type
+    document.getElementById('cvv').addEventListener('input', function(e) {
+        const cvv = e.target.value.replace(/\D/g, '');
+        const cardType = document.getElementById('card_type').value;
+        
+        if (cardType === 'amex') {
+            e.target.maxLength = 4;
+            e.target.pattern = '[0-9]{4}';
+        } else {
+            e.target.maxLength = 3;
+            e.target.pattern = '[0-9]{3}';
+        }
+        
+        e.target.value = cvv;
+    });
+
+    // Password confirmation validation
+    confirmPasswordInput.addEventListener('input', function() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            passwordMatch.textContent = '❌ Passwords do not match';
+            passwordMatch.style.color = 'var(--error)';
+        } else {
+            passwordMatch.textContent = '✅ Passwords match';
+            passwordMatch.style.color = 'var(--success)';
+        }
+    });
+
+    // Card type detection
+    function detectCardType(cardNumber) {
+        const patterns = {
+            visa: /^4/,
+            mastercard: /^5[1-5]/,
+            amex: /^3[47]/,
+            discover: /^6(?:011|5)/,
+            rupay: /^6(?!5)/
+        };
+
+        for (const [type, pattern] of Object.entries(patterns)) {
+            if (pattern.test(cardNumber)) {
+                cardTypeIndicator.textContent = getCardTypeName(type);
+                cardTypeIndicator.className = 'card-type-indicator ' + type;
+                return;
+            }
+        }
+        
+        cardTypeIndicator.textContent = '';
+        cardTypeIndicator.className = 'card-type-indicator';
+    }
+
+    function getCardTypeName(type) {
+        const names = {
+            visa: 'Visa',
+            mastercard: 'Mastercard',
+            amex: 'American Express',
+            discover: 'Discover',
+            rupay: 'RuPay'
+        };
+        return names[type] || '';
+    }
+
+    function validateCardNumber(cardNumber) {
+        const cleanNumber = cardNumber.replace(/\s/g, '');
+        
+        if (cleanNumber.length < 13 || cleanNumber.length > 19) {
+            cardNumberInput.setCustomValidity('Card number must be between 13-19 digits');
+        } else if (!luhnCheck(cleanNumber)) {
+            cardNumberInput.setCustomValidity('Invalid card number');
+        } else {
+            cardNumberInput.setCustomValidity('');
+        }
+    }
+
+    // Luhn algorithm for card validation
+    function luhnCheck(cardNumber) {
+        let sum = 0;
+        let isEven = false;
+
+        for (let i = cardNumber.length - 1; i >= 0; i--) {
+            let digit = parseInt(cardNumber[i]);
+
+            if (isEven) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+
+            sum += digit;
+            isEven = !isEven;
+        }
+
+        return sum % 10 === 0;
+    }
+
+    // Expiry date validation
+    document.getElementById('expiry_date').addEventListener('change', function() {
+        const selectedDate = new Date(this.value + '-01');
+        const currentDate = new Date();
+        
+        if (selectedDate < currentDate) {
+            this.setCustomValidity('Card has expired');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    // Form submission validation
+    registrationForm.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+        }
+    });
+
+    function validateForm() {
+        // Check if wallet is setup and validate card details
+        if (walletCheckbox.checked) {
+            const cardNumber = document.getElementById('card_number').value.replace(/\s/g, '');
+            const expiryDate = document.getElementById('expiry_date').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            if (cardNumber.length < 13 || cardNumber.length > 19) {
+                alert('Please enter a valid card number (13-19 digits)');
+                return false;
+            }
+            
+            if (!expiryDate) {
+                alert('Please select card expiry date');
+                return false;
+            }
+            
+            if (cvv.length < 3) {
+                alert('Please enter a valid CVV');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+});
+</script>
+
+{% endblock %}

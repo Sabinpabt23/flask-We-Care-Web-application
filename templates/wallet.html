@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wallet-container">
+    <h2>My Wallet</h2>
+    
+    <div class="wallet-balance">
+        {% if customer.wallet %}
+        <h3>Current Balance: ₹{{ "%.2f"|format(customer.wallet_balance) }}</h3>
+        {% else %}
+        <h3>Wallet Not Setup</h3>
+        <p>Please setup your wallet to manage your balance.</p>
+        <a href="{{ url_for('setup_wallet') }}" class="btn">Setup Wallet</a>
+        {% endif %}
+    </div>
+
+    {% if customer.wallet %}
+    <div class="wallet-details">
+        <h4>Card Information</h4>
+        <div class="card-info">
+            <p><strong>Card Type:</strong> {{ customer.wallet.card_type|title }}</p>
+            <p><strong>Card Holder:</strong> {{ customer.wallet.card_holder }}</p>
+            <p><strong>Card Number:</strong> •••• {{ customer.wallet.card_number }}</p>
+            <p><strong>Expiry Date:</strong> {{ customer.wallet.expiry_date }}</p>
+            <p><strong>Wallet Created:</strong> {{ customer.wallet.setup_date }}</p>
+        </div>
+    </div>
+
+    <div class="wallet-actions">
+        <div class="action-form">
+            <h4>Add Money</h4>
+            <form method="POST">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Amount:</label>
+                    <input type="number" name="amount" min="1" step="0.01" required>
+                </div>
+                <button type="submit" class="btn">Add to Wallet</button>
+            </form>
+        </div>
+
+        <div class="action-form">
+            <h4>Withdraw Money</h4>
+            <form method="POST">
+                <input type="hidden" name="action" value="withdraw">
+                <div class="form-group">
+                    <label>Amount:</label>
+                    <input type="number" name="amount" min="1" step="0.01" required>
+                </div>
+                <button type="submit" class="btn">Withdraw from Wallet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="transaction-history">
+        <h4>Recent Transactions</h4>
+        
+        {% if transactions %}
+        <div class="transaction-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ tx_stats.total_transactions }}</span>
+                <span class="stat-label">Total Transactions</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">₹{{ "%.2f"|format(tx_stats.total_added) }}</span>
+                <span class="stat-label">Total Added</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">₹{{ "%.2f"|format(tx_stats.total_spent) }}</span>
+                <span class="stat-label">Total Spent</span>
+            </div>
+        </div>
+
+        <div class="transactions-list">
+            {% for tx in transactions %}
+            <div class="transaction-item {{ tx.type }}">
+                <div class="transaction-icon">
+                    {% if tx.type == 'add' %}
+                    ➕
+                    {% elif tx.type == 'withdraw' %}
+                    ➖
+                    {% elif tx.type == 'purchase' %}
+                    🛍️
+                    {% else %}
+                    💰
+                    {% endif %}
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-header">
+                        <span class="transaction-type {{ tx.type }}">
+                            {{ tx.type|title }}
+                        </span>
+                        <span class="transaction-amount {{ tx.type }}">
+                            {% if tx.type == 'add' %}+{% else %}-{% endif %}₹{{ "%.2f"|format(tx.amount) }}
+                        </span>
+                    </div>
+                    <p class="transaction-description">{{ tx.description }}</p>
+                    <div class="transaction-footer">
+                        <span class="transaction-date">{{ tx.timestamp }}</span>
+                        <span class="transaction-balance">Balance: ₹{{ "%.2f"|format(tx.balance_after) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-transactions">
+            <p>No transactions yet. Your transaction history will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="quick-links">
+        <a href="{{ url_for('customer_dashboard') }}" class="btn">Back to Dashboard</a>
+        <a href="{{ url_for('show_products') }}" class="btn">Shop Products</a>
+        {% if not customer.wallet %}
+        <a href="{{ url_for('setup_wallet') }}" class="btn">Setup Wallet</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

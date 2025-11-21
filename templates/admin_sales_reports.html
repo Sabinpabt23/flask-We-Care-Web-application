@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-sales-reports">
+    <h2>📊 Sales Analytics & Reports</h2>
+    
+    <!-- Overview Stats -->
+    <div class="analytics-overview">
+        <h3>📈 Business Overview</h3>
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <h4>Total Revenue</h4>
+                <div class="stat-number">₹{{ "%.2f"|format(analytics.total_revenue) }}</div>
+                <div class="stat-label">Lifetime Earnings</div>
+            </div>
+            
+            <div class="stat-card customers">
+                <h4>Total Customers</h4>
+                <div class="stat-number">{{ analytics.total_customers }}</div>
+                <div class="stat-label">Registered Users</div>
+            </div>
+            
+            <div class="stat-card active">
+                <h4>Active Customers</h4>
+                <div class="stat-number">{{ analytics.active_customers }}</div>
+                <div class="stat-label">Made Purchases</div>
+            </div>
+            
+            <div class="stat-card conversion">
+                <h4>Conversion Rate</h4>
+                <div class="stat-number">{{ "%.1f"|format(analytics.conversion_rate) }}%</div>
+                <div class="stat-label">Active/Total Ratio</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card orders">
+                <h4>Total Orders</h4>
+                <div class="stat-number">{{ analytics.total_orders }}</div>
+                <div class="stat-label">Completed Purchases</div>
+            </div>
+            
+            <div class="stat-card avg-order">
+                <h4>Average Order Value</h4>
+                <div class="stat-number">₹{{ "%.2f"|format(analytics.average_order_value) }}</div>
+                <div class="stat-label">Per Transaction</div>
+            </div>
+            
+            <div class="stat-card wallet-users">
+                <h4>Wallet Users</h4>
+                <div class="stat-number">{{ analytics.customers_with_wallet }}</div>
+                <div class="stat-label">Active Wallets</div>
+            </div>
+            
+            <div class="stat-card transactions">
+                <h4>Total Transactions</h4>
+                <div class="stat-number">{{ analytics.total_transactions }}</div>
+                <div class="stat-label">Financial Operations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Sales -->
+    <div class="daily-sales">
+        <h3>📅 Recent Sales (Last 7 Days)</h3>
+        {% if daily_sales %}
+        <div class="sales-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Orders</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in daily_sales %}
+                    <tr>
+                        <td>{{ day.date }}</td>
+                        <td>{{ day.orders }}</td>
+                        <td>₹{{ "%.2f"|format(day.revenue) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <p>No sales data available yet. Make some sales to see analytics!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Customer Insights -->
+    <div class="customer-insights">
+        <h3>👥 Customer Insights</h3>
+        <div class="insights-grid">
+            <div class="insight-card">
+                <h4>💰 Average Spend</h4>
+                <p>₹{{ "%.2f"|format(customer_insights.avg_spent_per_customer) }}</p>
+                <small>Per Customer</small>
+            </div>
+            
+            <div class="insight-card">
+                <h4>🛒 Average Orders</h4>
+                <p>{{ "%.1f"|format(customer_insights.avg_orders_per_customer) }}</p>
+                <small>Per Customer</small>
+            </div>
+            
+            <div class="insight-card">
+                <h4>🏆 Top Spender</h4>
+                <p>{{ customer_insights.top_spender.name }}</p>
+                <small>₹{{ "%.2f"|format(customer_insights.top_spender.total_spent) }}</small>
+            </div>
+            
+            <div class="insight-card">
+                <h4>📦 Most Frequent</h4>
+                <p>{{ customer_insights.most_frequent_buyer.name }}</p>
+                <small>{{ customer_insights.most_frequent_buyer.purchase_count }} orders</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="top-products">
+        <h3>🎯 Top Performing Products</h3>
+        {% if top_products %}
+        <div class="products-grid">
+            {% for product in top_products %}
+            <div class="product-card">
+                <h4>{{ product.name }}</h4>
+                <p class="product-brand">{{ product.brand }}</p>
+                <div class="product-stats">
+                    <span>🛒 Sold: {{ product.sales }}</span>
+                    <span>💰 Revenue: ₹{{ "%.2f"|format(product.revenue) }}</span>
+                    <span>📦 Stock: {{ product.stock }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-data">
+            <p>No product sales data yet. Products will appear here after sales.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn">← Back to Dashboard</a>
+        <button class="btn secondary" onclick="refreshAnalytics()">🔄 Refresh Data</button>
+    </div>
+</div>
+
+<script>
+function refreshAnalytics() {
+    location.reload();
+}
+</script>
+
+
+{% endblock %}

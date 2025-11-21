@@ -1,0 +1,94 @@
+{
+  "1": {
+    "id": 1,
+    "name": "Vitamin C Serum",
+    "brand": "Garnier",
+    "category": "Skincare",
+    "stock": 100,
+    "cost": 1000.0,
+    "price": 2000.0,
+    "country": "France",
+    "description": "Brightening vitamin C serum for radiant skin",
+    "created_date": "2024-01-15",
+    "is_active": true
+  },
+  "2": {
+    "id": 2,
+    "name": "Skin Cleanser",
+    "brand": "Cetaphil",
+    "category": "Skincare",
+    "stock": 100,
+    "cost": 280.0,
+    "price": 560.0,
+    "country": "Switzerland",
+    "description": "Gentle daily face cleanser for all skin types",
+    "created_date": "2024-01-15",
+    "is_active": true
+  },
+  "3": {
+    "id": 3,
+    "name": "Sunscreen",
+    "brand": "Aqualogica",
+    "category": "Skincare",
+    "stock": 100,
+    "cost": 700.0,
+    "price": 1400.0,
+    "country": "India",
+    "description": "Hydrating sunscreen with SPF protection",
+    "created_date": "2024-01-15",
+    "is_active": true
+  },
+  "4": {
+    "id": 4,
+    "name": "Foundation",
+    "brand": "Urban",
+    "category": "Makeup",
+    "stock": 100,
+    "cost": 700.0,
+    "price": 1400.0,
+    "country": "Nepal",
+    "description": "Use for making for skin clear and glow",
+    "created_date": "2025-11-21",
+    "is_active": true
+  },
+  "5": {
+    "id": 5,
+    "name": "Face-Wash",
+    "brand": "Urban",
+    "category": "Men's Grooming",
+    "stock": 100,
+    "cost": 999.0,
+    "price": 1998.0,
+    "country": "USA",
+    "description": "Make your face glow like a King.",
+    "created_date": "2025-11-21",
+    "is_active": true
+  },
+  "6": {
+    "id": 6,
+    "name": "Nail Polish",
+    "brand": "Essie",
+    "category": "Makeup",
+    "stock": 100,
+    "cost": 799.0,
+    "price": 1598.0,
+    "country": "China",
+    "description": "Nail polish is a colorful lacquer applied to fingernails or toenails to decorate and protect them. It enhances appearance, expresses personal style, and helps strengthen the nail surface against damage\r\n",
+    "created_date": "2025-11-21",
+    "is_active": false
+  },
+  "7": {
+    "id": 7,
+    "name": "Nail Polish",
+    "brand": "Essie",
+    "category": "Makeup",
+    "stock": 100,
+    "cost": 799.0,
+    "price": 1598.0,
+    "country": "China",
+    "description": "Nail polish is a colorful lacquer applied to fingernails or toenails to decorate and protect them. It enhances appearance, expresses personal style, and helps strengthen the nail surface against damage\r\n",
+    "created_date": "2025-11-21",
+    "is_active": true
+  }
+  
+}

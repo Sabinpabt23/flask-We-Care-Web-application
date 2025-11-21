@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <h2>Admin Dashboard 👑</h2>
+    <p class="admin-welcome">Welcome back, <strong>{{ admin.full_name }}</strong>! ({{ admin.role|replace('_', ' ')|title }})</p>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>📊 Store Overview</h3>
+            <div class="stat-content">
+                <p><strong>Total Products:</strong> {{ total_products }}</p>
+                <p><strong>Total Stock:</strong> {{ total_stock }} units</p>
+                <p><strong>Total Customers:</strong> {{ total_customers }}</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>💰 Financial Overview</h3>
+            <div class="stat-content">
+                <p><strong>Admin Balance:</strong> ₹{{ "%.2f"|format(admin_wallet.balance) }}</p>
+                <p><strong>Total Revenue:</strong> ₹{{ "%.2f"|format(admin_wallet.total_revenue) }}</p>
+                <p><strong>Total Transactions:</strong> {{ admin_wallet.total_transactions }}</p>
+                <p><strong>Last Updated:</strong> {{ admin_wallet.last_updated }}</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>🛠️ Quick Actions</h3>
+            <div class="stat-content">
+                <a href="{{ url_for('admin_restock') }}" class="btn">📦 Restock Products</a>
+                <a href="{{ url_for('admin_customers') }}" class="btn">👥 View Customers</a>
+                <a href="{{ url_for('show_products') }}" class="btn">🛍️ View Products</a>
+                <a href="{{ url_for('index') }}" class="btn">🏪 Visit Store</a>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>👤 Admin Info</h3>
+            <div class="stat-content">
+                <p><strong>Username:</strong> {{ admin.username }}</p>
+                <p><strong>Email:</strong> {{ admin.email }}</p>
+                <p><strong>Last Login:</strong> {{ admin.last_login or 'First login' }}</p>
+                <p><strong>Role:</strong> {{ admin.role|replace('_', ' ')|title }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="recent-activity">
+        <h3>📈 Recent Store Activity</h3>
+        <div class="activity-grid">
+            <div class="activity-item">
+                <span class="activity-icon">🛒</span>
+                <div class="activity-details">
+                    <p><strong>Restock Management</strong></p>
+                    <p>Manage product inventory and supplier orders</p>
+                    <a href="{{ url_for('admin_restock') }}" class="btn small-btn">Manage</a>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <span class="activity-icon">👥</span>
+                <div class="activity-details">
+                    <p><strong>Customer Insights</strong></p>
+                    <p>View customer data and purchase patterns</p>
+                    <a href="{{ url_for('admin_customers') }}" class="btn small-btn">View</a>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <span class="activity-icon">📊</span>
+                <div class="activity-details">
+                    <p><strong>Sales Reports</strong></p>
+                    <p>Generate sales reports and analytics</p>
+                    <a href="{{ url_for('admin_sales_reports') }}" class="btn small-btn">View Reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="customer-purchases">
+    <h2>📦 Your Purchase History</h2>
+    
+    {% if customer.purchase_count == 0 %}
+    <div class="no-purchases">
+        <h3>No purchases yet! 😔</h3>
+        <p>Start your beauty journey with our amazing products.</p>
+        <div class="purchase-actions">
+            <a href="{{ url_for('show_products') }}" class="btn">Start Shopping</a>
+            <a href="{{ url_for('customer_dashboard') }}" class="btn secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    {% else %}
+    <!-- Purchase Statistics -->
+    <div class="purchase-stats">
+        <h3>📊 Your Shopping Summary</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">{{ customer.purchase_count }}</span>
+                <span class="stat-label">Total Orders</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">₹{{ "%.2f"|format(customer.total_spent) }}</span>
+                <span class="stat-label">Total Spent</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ customer.points }}</span>
+                <span class="stat-label">Loyalty Points</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ customer.last_purchase }}</span>
+                <span class="stat-label">Last Purchase</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order History -->
+    <div class="order-history">
+        <h3>🛒 Your Orders</h3>
+        <div class="orders-list">
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h4>Order #ORD{{ customer.customer_id }}001</h4>
+                        <p class="order-date">Placed on {{ customer.last_purchase or '2025-11-20' }}</p>
+                    </div>
+                    <div class="order-status completed">
+                        <span>✅ Completed</span>
+                    </div>
+                </div>
+                
+                <div class="order-details">
+                    <div class="order-items">
+                        <p><strong>Items:</strong> {{ customer.purchase_count }} beauty product(s)</p>
+                        <p><strong>Total Amount:</strong> ₹{{ "%.2f"|format(customer.total_spent) }}</p>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn small-btn" disabled>View Details</button>
+                        <button class="btn small-btn secondary" disabled>Download Invoice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coming Soon Features -->
+    <div class="coming-soon-section">
+        <h3>🔜 Enhanced Order History Coming Soon</h3>
+        <div class="features-list">
+            <div class="feature-item">
+                <h4>📋 Detailed Order Tracking</h4>
+                <p>View complete order details, item lists, and pricing</p>
+            </div>
+            <div class="feature-item">
+                <h4>📄 Invoice Downloads</h4>
+                <p>Download PDF invoices for all your purchases</p>
+            </div>
+            <div class="feature-item">
+                <h4>🔄 Order Status Updates</h4>
+                <p>Real-time tracking from purchase to completion</p>
+            </div>
+            <div class="feature-item">
+                <h4>⭐ Product Reviews</h4>
+                <p>Rate and review products you've purchased</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="navigation-actions">
+        <a href="{{ url_for('customer_dashboard') }}" class="btn">← Back to Dashboard</a>
+        <a href="{{ url_for('show_products') }}" class="btn">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}

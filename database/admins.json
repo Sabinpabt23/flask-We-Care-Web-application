@@ -1,0 +1,13 @@
+{
+  "1": {
+    "admin_id": 1,
+    "username": "admin",
+    "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "email": "admin@wecarebeauty.com",
+    "full_name": "System Administrator",
+    "role": "super_admin",
+    "created_date": "2025-11-21",
+    "last_login": "2025-11-21 22:04:12",
+    "is_active": true
+  }
+}

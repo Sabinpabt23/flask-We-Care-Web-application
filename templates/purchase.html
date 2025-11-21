@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="purchase-container">
+    <h2>Make Purchase</h2>
+    
+    <!-- Step 1: Select Products -->
+    <div class="purchase-step" id="step1">
+        <h3>Step 1: Select Products</h3>
+        
+        {% if not customer_wallet %}
+        <div class="wallet-warning">
+            <p>⚠️ You need to setup your wallet before making purchases.</p>
+            <a href="{{ url_for('setup_wallet') }}" class="btn">Setup Wallet</a>
+        </div>
+        {% else %}
+        <div class="wallet-info">
+            <p>💰 Your wallet balance: <strong>₹{{ "%.2f"|format(wallet_balance) }}</strong></p>
+        </div>
+        {% endif %}
+
+        <form id="productSelectionForm">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Available Stock</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.brand }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>₹{{ "%.2f"|format(product.price) }}</td>
+                        <td>
+                            <input type="number" name="qty_{{ product.id }}" 
+                                   min="0" max="{{ product.stock }}" value="0" 
+                                   class="quantity-input" data-product-id="{{ product.id }}" 
+                                   data-product-name="{{ product.name }}" data-price="{{ product.price }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="purchase-summary">
+                <p><strong>Selected Items Total: ₹<span id="selectedTotal">0.00</span></strong></p>
+                <p class="note">🎁 <strong>Special Offer:</strong> Buy 3 Get 1 Free!</p>
+            </div>
+
+            <button type="button" class="btn" onclick="proceedToVerification()" 
+                    {% if not customer_wallet %}disabled{% endif %}>
+                Proceed to Verification
+            </button>
+        </form>
+    </div>
+
+    <!-- Step 2: Identity & Card Verification -->
+    <div class="purchase-step" id="step2" style="display: none;">
+        <h3>Step 2: Identity & Card Verification</h3>
+        
+        <form method="POST" id="verificationForm">
+            <!-- Hidden fields for product data will be added here by JavaScript -->
+            <div id="productData"></div>
+            
+            <div class="verification-section">
+                <h4>Identity Verification</h4>
+                <div class="form-group">
+                    <label for="verify_name">Full Name (as registered):</label>
+                    <input type="text" id="verify_name" name="verify_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="verify_email">Email Address:</label>
+                    <input type="email" id="verify_email" name="verify_email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="verify_phone">Phone Number:</label>
+                    <input type="tel" id="verify_phone" name="verify_phone" required>
+                </div>
+            </div>
+
+            <div class="verification-section">
+                <h4>Card Verification</h4>
+                <div class="form-group">
+                    <label for="verify_card_holder">Card Holder Name:</label>
+                    <input type="text" id="verify_card_holder" name="verify_card_holder" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="verify_card_last_four">Last 4 digits of Card:</label>
+                    <input type="text" id="verify_card_last_four" name="verify_card_last_four" 
+                           maxlength="4" pattern="\d{4}" placeholder="1234" required>
+                </div>
+            </div>
+
+            <div class="purchase-summary-final">
+                <h4>Order Summary</h4>
+                <div id="finalSummary">No products selected</div>
+                <p><strong>Final Total: ₹<span id="finalTotal">0.00</span></strong></p>
+            </div>
+
+            <div class="verification-actions">
+                <button type="button" class="btn secondary" onclick="backToProducts()">Back to Products</button>
+                <button type="submit" class="btn">Complete Purchase</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Global variable to store selected products
+let selectedProducts = [];
+
+// Function to calculate and update total
+function updateTotal() {
+    let total = 0;
+    selectedProducts = [];
+    
+    // Get all quantity inputs
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    
+    quantityInputs.forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            const productId = input.getAttribute('data-product-id');
+            const productName = input.getAttribute('data-product-name');
+            const price = parseFloat(input.getAttribute('data-price'));
+            
+            selectedProducts.push({
+                id: productId,
+                name: productName,
+                qty: quantity,
+                price: price
+            });
+            
+            total += quantity * price;
+        }
+    });
+    
+    // Update displayed total
+    document.getElementById('selectedTotal').textContent = total.toFixed(2);
+}
+
+// Function to proceed to verification step
+function proceedToVerification() {
+    if (selectedProducts.length === 0) {
+        alert('Please select at least one product!');
+        return;
+    }
+    
+    // Calculate final total
+    const finalTotal = selectedProducts.reduce((sum, product) => {
+        return sum + (product.qty * product.price);
+    }, 0);
+    
+    // Update final total display
+    document.getElementById('finalTotal').textContent = finalTotal.toFixed(2);
+    
+    // Build summary HTML
+    let summaryHTML = '';
+    selectedProducts.forEach(product => {
+        const productTotal = product.qty * product.price;
+        summaryHTML += `<p>${product.name} - ${product.qty} x ₹${product.price.toFixed(2)} = ₹${productTotal.toFixed(2)}</p>`;
+    });
+    document.getElementById('finalSummary').innerHTML = summaryHTML;
+    
+    // Create hidden input fields for products
+    let productDataHTML = '';
+    selectedProducts.forEach(product => {
+        productDataHTML += `<input type="hidden" name="product_${product.id}" value="${product.qty}">`;
+    });
+    document.getElementById('productData').innerHTML = productDataHTML;
+    
+    // Switch to verification step
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+}
+
+// Function to go back to product selection
+function backToProducts() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+}
+
+// Initialize event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all quantity inputs
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    quantityInputs.forEach(input => {
+        input.addEventListener('input', updateTotal);
+        input.addEventListener('change', updateTotal);
+    });
+    
+    // Initialize total calculation
+    updateTotal();
+});
+
+// Prevent form submission from step 1
+document.getElementById('productSelectionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+});
+</script>
+{% endblock %}

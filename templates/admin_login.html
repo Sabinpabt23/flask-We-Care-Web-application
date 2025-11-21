@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container" data-page="admin-login">
+    <h2>🔐 Admin Login</h2>
+    <p class="admin-note">Access the WeCare Beauty Store administration panel</p>
+    
+    <!-- Security Warning -->
+    <div class="security-warning">
+        <p>⚠️ Restricted Access - Authorized Personnel Only</p>
+    </div>
+
+    <form method="POST" class="auth-form">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required class="form-control" placeholder="Enter admin username">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required class="form-control" placeholder="Enter admin password">
+        </div>
+
+        <button type="submit" class="btn">🔒 Login as Admin</button>
+    </form>
+
+    <!-- Hidden credentials that only show on hover -->
+    <div class="admin-credentials">
+        <div class="credentials-toggle">
+            🛈 Hover for default credentials (Development Only)
+        </div>
+        <div class="credentials-content">
+            <p><strong>Default Admin Credentials:</strong></p>
+            <p><strong>Username:</strong> admin</p>
+            <p><strong>Password:</strong> admin123</p>
+            <p><small>⚠️ Change these credentials in production</small></p>
+        </div>
+    </div>
+
+    <div class="auth-links">
+        <p><a href="{{ url_for('index') }}">← Back to Store</a></p>
+    </div>
+</div>
+{% endblock %}

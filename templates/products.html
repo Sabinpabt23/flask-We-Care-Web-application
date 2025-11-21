@@ -1,0 +1,36 @@
+<!-- DEBUG: Number of products = {{ products|length }} -->
+
+{% for product in products %}
+<!-- DEBUG Product: {{ product.name }} - ₹{{ product.price }} -->
+{% endfor %}
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Available Products</h2>
+
+<table class="products-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Stock</th>
+            <th>Price</th>
+            <th>Country</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.brand }}</td>
+            <td>{{ product.stock }}</td>
+            <td>₹{{ "%.2f"|format(product.price) }}</td>
+            <td>{{ product.country }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
