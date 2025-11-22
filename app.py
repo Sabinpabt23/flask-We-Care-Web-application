@@ -67,7 +67,7 @@ def show_products():
     if 'customer_id' in session:
         wallet_balance = get_wallet_balance(session['customer_id'])
     
-    # CRITICAL FIX: Always reload products before displaying
+    # Always reload products before displaying
     ensure_products_reload()
     
     products_list = []
@@ -876,24 +876,6 @@ def admin_delete_product(product_id):
     
     return redirect(url_for('admin_products'))
 
-@app.route('/debug/products')
-def debug_products():
-    """Debug endpoint to check product synchronization"""
-    ensure_products_reload()
-    
-    products_list = []
-    for product_id, p in products.items():
-        products_list.append({
-            'id': p['id'],
-            'name': p['name'],
-            'stock': p['stock'],
-            'active': p.get('is_active', True)
-        })
-    
-    return {
-        'total_products': len(products_list),
-        'products': products_list,
-        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    }
+
 if __name__ == '__main__':
     app.run(debug=True)
